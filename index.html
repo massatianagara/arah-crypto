@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Crypto Embed Widget & Portfolio Tracker Generator</title>
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+
+<meta name="description" content="Generate free, privacy-focused crypto portfolio embeds for your website, Notion, or blog. Supports Bitcoin, Ethereum, Solana. No backend required.">
+<meta name="keywords" content="crypto embed, crypto iframe, bitcoin widget, portfolio tracker, notion crypto widget, open source crypto widget, html crypto ticker">
+<meta name="author" content="Satia">
+<meta name="robots" content="index, follow">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Free Crypto Embed Widget Generator">
+<meta property="og:description" content="The easiest way to display crypto portfolio growth on your site. Privacy-first & Open Source.">
+<meta property="og:url" content="https://massatianagara.github.io/arah-crypto/">
+<meta property="og:image" content="https://massatianagara.github.io/arah-crypto/preview.jpg"> 
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* --- CSS Variables --- */
+:root {
+  --primary: #f7931a;
+  --primary-hover: #ffaa4a;
+  --primary-glow: rgba(247, 147, 26, 0.4);
+  
+  /* Dark Mode (Default) */
+  --bg: #020203;
+  --surface: #0a0a0a;
+  --surface-gradient: linear-gradient(145deg, #131316 0%, #08080a 100%);
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --input-bg: #000000;
+  --text: #ffffff;
+  --text-muted: #949494;
+  --hero-glow: radial-gradient(circle at 50% -20%, rgba(247, 147, 26, 0.15), transparent 70%);
+}
+
+/* Light Mode Override */
+body.light-mode {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-gradient: linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%);
+  --surface-border: #e2e8f0;
+  --input-bg: #ffffff;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --hero-glow: radial-gradient(circle at 50% -20%, rgba(247, 147, 26, 0.08), transparent 60%);
+}
+
+/* --- Base --- */
+* { box-sizing: border-box; transition: background-color 0.3s, border-color 0.3s, color 0.3s, box-shadow 0.3s; }
+body { 
+  margin: 0; 
+  background: var(--bg); 
+  color: var(--text); 
+  font-family: 'Inter', sans-serif; 
+  line-height: 1.6; 
+  overflow-x: hidden; 
+}
+
+/* Ambient Background Glow */
+body::before {
+  content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+  background: var(--hero-glow); z-index: -1; pointer-events: none;
+}
+
+a { text-decoration: none; color: inherit; }
+
+/* --- Components --- */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+.btn { 
+  display: inline-flex; align-items: center; justify-content: center; 
+  padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 0; 
+  font-size: 14px; letter-spacing: 0.3px;
+}
+.btn-primary { 
+  background: var(--primary); color: #fff; 
+  box-shadow: 0 4px 15px var(--primary-glow);
+}
+.btn-primary:hover { 
+  background: var(--primary-hover); transform: translateY(-2px); 
+  box-shadow: 0 6px 20px var(--primary-glow);
+}
+.btn-outline { 
+  background: transparent; border: 1px solid var(--surface-border); color: var(--text); 
+}
+.btn-outline:hover { 
+  border-color: var(--text); background: rgba(255,255,255,0.05); 
+}
+
+.badge { 
+  background: rgba(247,147,26,0.15); color: var(--primary); 
+  padding: 6px 12px; border-radius: 30px; font-size: 11px; font-weight: 700; 
+  text-transform: uppercase; letter-spacing: 1px; border: 1px solid rgba(247,147,26,0.3); 
+  display: inline-block; margin-bottom: 16px;
+}
+
+/* --- Navbar --- */
+nav { 
+  border-bottom: 1px solid var(--surface-border); 
+  background: rgba(2, 2, 3, 0.7); 
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 100; padding: 16px 0; 
+}
+body.light-mode nav { background: rgba(255, 255, 255, 0.8); }
+
+nav .container { display: flex; justify-content: space-between; align-items: center; }
+.logo { font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 8px; letter-spacing: -0.5px; }
+.logo span { color: var(--primary); }
+.nav-links { display: flex; gap: 12px; align-items: center; }
+
+.theme-toggle { background: transparent; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); padding: 5px; }
+.theme-toggle:hover { color: var(--primary); transform: rotate(15deg); }
+
+.donate-btn { background: #E91E63; color: white; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3); } 
+.donate-btn:hover { background: #D81B60; transform: translateY(-2px); }
+
+/* --- Hero --- */
+.hero { padding: 80px 0 100px; }
+.hero-header { text-align: center; margin-bottom: 60px; }
+.hero h1 { 
+  font-size: 48px; font-weight: 800; margin: 0 0 16px; letter-spacing: -1.5px; line-height: 1.1;
+  background: linear-gradient(180deg, var(--text) 0%, var(--text-muted) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero p { color: var(--text-muted); font-size: 18px; max-width: 640px; margin: 0 auto; }
+
+/* Grid & Panels */
+.gen-grid { display: grid; grid-template-columns: 360px 1fr; gap: 50px; align-items: start; }
+@media(max-width: 900px) { .gen-grid { grid-template-columns: 1fr; } }
+
+.panel { 
+  background: var(--surface-gradient); 
+  border: 1px solid var(--surface-border); 
+  border-radius: 20px; padding: 28px; 
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2); 
+}
+body.light-mode .panel { box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+
+/* Forms */
+label { display: block; margin-bottom: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+input, select { 
+  width: 100%; padding: 14px; 
+  background: var(--input-bg); 
+  border: 1px solid var(--surface-border); 
+  color: var(--text); border-radius: 10px; 
+  font-family: inherit; font-size: 14px; margin-bottom: 20px; 
+}
+input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(247,147,26,0.1); }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+/* Preview */
+.preview-wrapper { position: sticky; top: 100px; }
+iframe { 
+  width: 100%; height: 360px; border: 0; border-radius: 24px; 
+  background: transparent; 
+  filter: drop-shadow(0 20px 30px rgba(0,0,0,0.15)); 
+  transition: transform 0.2s; 
+}
+
+.code-area { margin-top: 30px; position: relative; }
+textarea { 
+  width: 100%; min-height: 110px; 
+  background: var(--input-bg); 
+  border: 1px solid var(--surface-border); 
+  border-radius: 12px; padding: 16px; 
+  font-family: 'Monaco', monospace; font-size: 12px; color: var(--text-muted); 
+  resize: vertical; display: block; 
+}
+.copy-absolute { 
+  position: absolute; top: 10px; right: 10px; 
+  padding: 6px 14px; font-size: 11px; 
+  background: var(--surface); border: 1px solid var(--surface-border);
+  color: var(--text); cursor: pointer; border-radius: 6px;
+}
+
+/* --- Features Section --- */
+.features { padding: 100px 0; border-top: 1px solid var(--surface-border); position: relative; background: rgba(0,0,0,0.2); }
+body.light-mode .features { background: rgba(255,255,255,0.5); }
+
+.feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 50px; }
+.feat-card { 
+  padding: 30px; border-radius: 16px; 
+  background: var(--surface-gradient); 
+  border: 1px solid var(--surface-border); 
+  transition: all 0.3s ease; 
+}
+.feat-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+.feat-icon { font-size: 28px; margin-bottom: 20px; display: inline-block; filter: drop-shadow(0 4px 10px rgba(247, 147, 26, 0.3)); }
+.feat-card h3 { margin: 0 0 10px; font-size: 18px; font-weight: 700; }
+.feat-card p { margin: 0; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+
+/* --- Specs Section (New for README Alignment) --- */
+.specs { padding: 80px 0; border-top: 1px solid var(--surface-border); }
+.specs-box { 
+  background: var(--surface); border: 1px solid var(--surface-border); 
+  border-radius: 16px; padding: 40px; text-align: left;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+}
+@media(max-width: 768px) { .specs-box { grid-template-columns: 1fr; } }
+
+.spec-list { list-style: none; padding: 0; margin: 0; }
+.spec-list li { margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px; color: var(--text-muted); font-size: 14px; }
+.spec-list li::before { content: '•'; color: var(--primary); font-weight: bold; }
+.specs h3 { margin-top: 0; font-size: 20px; margin-bottom: 20px; }
+
+/* --- Donate --- */
+.donate-sec { padding: 100px 0; text-align: center; border-top: 1px solid var(--surface-border); }
+.heart-icon { color: #E91E63; animation: beat 1.5s infinite; display: inline-block; filter: drop-shadow(0 0 10px rgba(233, 30, 99, 0.5)); }
+@keyframes beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+footer { padding: 50px 0; border-top: 1px solid var(--surface-border); text-align: center; color: var(--text-muted); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a href="#" class="logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+      <span>Satia</span>Crypto<span>Embed</span>
+    </a>
+    <div class="nav-links">
+      <button class="theme-toggle" onclick="toggleSiteTheme()" title="Switch Theme">
+        <span id="theme-icon">☀</span>
+      </button>
+      
+      <a href="https://github.com/massatianagara/arah-crypto" target="_blank" class="btn btn-outline" style="padding: 10px 18px; font-size: 13px;">
+        GitHub
+      </a>
+      <a href="https://sociabuzz.com/massatianagara/donate" target="_blank" class="btn donate-btn" style="padding: 10px 20px; font-size: 13px;">
+        ♥ Support
+      </a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-header">
+      <span class="badge">Open Source Project</span>
+      <h1>Crypto Portfolio Tracker <span style="color:var(--primary)">Widget</span></h1>
+      <p>Create beautiful, privacy-focused crypto embeds for your website, blog, bio link, or Notion. No coding or backend required.</p>
+    </div>
+
+    <div class="gen-grid">
+      <div class="panel">
+        <div class="group">
+          <label>Select Asset</label>
+          <select id="coin">
+            <option value="bitcoin">Bitcoin (BTC)</option>
+            <option value="ethereum">Ethereum (ETH)</option>
+            <option value="solana">Solana (SOL)</option>
+            <option value="binancecoin">BNB (BNB)</option>
+            <option value="ripple">XRP (XRP)</option>
+            <option value="dogecoin">Dogecoin (DOGE)</option>
+            <option value="cardano">Cardano (ADA)</option>
+            <option value="tron">Tron (TRX)</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <div class="group">
+            <label>Currency</label>
+            <select id="fiat">
+              <option value="IDR">IDR (Rp)</option>
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="SGD">SGD (S$)</option>
+              <option value="MYR">MYR (RM)</option>
+              <option value="JPY">JPY (¥)</option>
+            </select>
+          </div>
+          <div class="group">
+            <label>Language</label>
+            <select id="lang">
+              <option value="en">English</option>
+              <option value="id">Indonesia</option>
+            </select>
+          </div>
+        </div>
+
+        <hr style="border:0; border-top:1px solid var(--surface-border); margin: 25px 0;">
+
+        <div class="group">
+          <label>Widget Theme</label>
+          <select id="widget_theme">
+            <option value="dark">Dark (Default)</option>
+            <option value="light">Light (Clean)</option>
+            <option value="glass">Glassmorphism</option>
+            <option value="flat">Flat (Minimal)</option>
+          </select>
+        </div>
+
+        <div class="group">
+          <label>Start Balance (Coin)</label>
+          <input type="number" step="any" id="btc_then" value="1.5" placeholder="e.g. 1.5">
+        </div>
+        <div class="group">
+          <label>Start Date (Optional)</label>
+          <input type="date" id="btc_then_date">
+        </div>
+        <div class="group">
+          <label>Current Balance (Coin)</label>
+          <input type="number" step="any" id="btc_now" value="2.5" placeholder="e.g. 2.5">
+        </div>
+        
+        <div class="group">
+          <label>Default View Period</label>
+          <select id="period">
+            <option value="3m">3 Months</option>
+            <option value="6m">6 Months</option>
+            <option value="1y">1 Year</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" style="width:100%" onclick="generate()">Update Preview</button>
+      </div>
+
+      <div class="preview-wrapper">
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px; color:var(--text-muted); font-size:14px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">
+          <span>Live Preview</span>
+        </div>
+        <iframe id="preview"></iframe>
+
+        <div class="code-area">
+          <textarea id="code" readonly></textarea>
+          <button class="btn btn-outline copy-absolute" onclick="copyCode(this)">Copy Code</button>
+        </div>
+        <div style="margin-top: 15px; font-size: 13px; color: var(--text-muted); opacity: 0.7;">
+          * Paste this code into any HTML website, Notion, or WordPress.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="container">
+    <div style="text-align: center; margin-bottom: 60px;">
+      <h2>Why use this widget?</h2>
+      <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto;">
+        Built for modern web needs: lightweight, privacy-focused, and aesthetically pleasing.
+      </p>
+    </div>
+    
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-icon">⚡</div>
+        <h3>Enterprise-Grade Data</h3>
+        <p>Fetches real-time crypto prices from CoinGecko Public API and accurate fiat exchange rates via Frankfurter.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🛡️</div>
+        <h3>Zero-Knowledge</h3>
+        <p>100% Client-side architecture. Your financial data is processed in your browser and never touches our servers.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🎨</div>
+        <h3>Adaptive Theming</h3>
+        <p>Seamlessly blends with your brand. Switch between Dark, Light, Glassmorphism, or Flat themes instantly.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🚀</div>
+        <h3>Ultra Lightweight</h3>
+        <p>Built with Vanilla JS (No React/Vue bloat). Loads instantly with minimal impact on your site's performance.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🌍</div>
+        <h3>Global Currency</h3>
+        <p>Native support for major fiat currencies (IDR, USD, EUR, JPY) and multi-language interface (EN & ID).</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📱</div>
+        <h3>Mobile-First Design</h3>
+        <p>Liquid layouts that adapt perfectly to any viewport, from large desktop monitors to mobile screens.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="specs">
+  <div class="container">
+    <div class="specs-box">
+      <div>
+        <h3>Technical Specifications</h3>
+        <ul class="spec-list">
+          <li><strong>Tech Stack:</strong> HTML5, CSS3, Vanilla JavaScript (ES6+).</li>
+          <li><strong>Dependencies:</strong> None (No jQuery, No Bootstrap).</li>
+          <li><strong>Deployment:</strong> Static hosting (GitHub Pages, Vercel, Netlify).</li>
+          <li><strong>License:</strong> MIT License (Free for personal & commercial use).</li>
+        </ul>
+      </div>
+      <div>
+        <h3>API & Rate Limits</h3>
+        <ul class="spec-list">
+          <li><strong>Data Source:</strong> CoinGecko Public API (Free Tier).</li>
+          <li><strong>Rate Limit:</strong> ~10-30 requests/minute per IP address.</li>
+          <li><strong>Usage Advice:</strong> Ideal for personal portfolios, blogs, or Notion pages. High-traffic sites may require caching.</li>
+          <li><strong>Auth:</strong> No API Key required for standard usage.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="donate-sec">
+  <div class="container">
+    <span class="heart-icon" style="font-size: 40px; margin-bottom: 20px;">♥</span>
+    <h2>Support Open Source</h2>
+    <p>This project is free and open-source. If you find this widget useful for your portfolio, consider buying me a coffee to keep the updates coming.</p>
+    <a href="https://sociabuzz.com/massatianagara/donate" target="_blank" class="btn donate-btn" style="padding: 14px 30px; font-size: 16px;">
+      Donate via SociaBuzz
+    </a>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>&copy; 2026 CryptoEmbed by <a href="https://satia.id" target="_blank">Satia Studio</a>. MIT License.</p>
+    <p style="opacity: 0.5; font-size: 12px; margin-top: 10px;">
+      Data provided by CoinGecko & Frankfurter API. Not financial advice.
+    </p>
+  </div>
+</footer>
+
+<script>
+const getBaseUrl = () => {
+  const loc = window.location;
+  const path = loc.pathname.substring(0, loc.pathname.lastIndexOf('/') + 1);
+  return loc.origin + path;
+};
+
+// --- Site Theme Logic ---
+function toggleSiteTheme() {
+  const body = document.body;
+  body.classList.toggle('light-mode');
+  const icon = document.getElementById('theme-icon');
+  if (body.classList.contains('light-mode')) {
+    icon.textContent = '🌙';
+  } else {
+    icon.textContent = '☀';
+  }
+}
+
+function generate(){
+ const baseUrl = getBaseUrl();
+ const params = new URLSearchParams({
+   coin: document.getElementById('coin').value,
+   fiat: document.getElementById('fiat').value,
+   lang: document.getElementById('lang').value,
+   btc_then: document.getElementById('btc_then').value,
+   btc_then_date: document.getElementById('btc_then_date').value,
+   btc_now: document.getElementById('btc_now').value,
+   period: document.getElementById('period').value,
+   theme: document.getElementById('widget_theme').value
+ });
+
+ const src = `${baseUrl}embed.html?${params.toString()}`;
+ document.getElementById('preview').src = src;
+ 
+ const embedCode = `<iframe src="${src}" style="width:100%;max-width:560px;height:360px;border:0;border-radius:24px;overflow:hidden;background:transparent;" loading="lazy" title="Crypto Portfolio Widget"></iframe>`;
+ document.getElementById('code').value = embedCode;
+}
+
+function copyCode(btn) {
+  const code = document.getElementById('code');
+  code.select();
+  navigator.clipboard.writeText(code.value);
+  
+  const original = btn.textContent;
+  btn.textContent = "Copied!";
+  btn.style.background = "var(--primary)";
+  btn.style.color = "white";
+  btn.style.borderColor = "var(--primary)";
+  
+  setTimeout(() => {
+    btn.textContent = original;
+    btn.style.background = "";
+    btn.style.color = "";
+    btn.style.borderColor = "";
+  }, 2000);
+}
+
+// Generate on Load
+generate();
+</script>
+
+</body>
+</html>

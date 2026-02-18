@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crypto Asset Embed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --up: #00c076; 
+  --down: #ff5b5b; 
+  /* Default Dark Vars */
+  --text-main: #fff;
+  --text-muted: #8e9ab0;
+  --bg-toggle: #252830;
+  --bg-toggle-active: #363a45;
+  --border-color: #2a2d35;
+}
+
+/* Flexbox */
+html, body {
+  margin: 0; padding: 0; width: 100%; height: 100vh;
+  font-family: 'Inter', sans-serif; background: transparent; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* --- BASE CARD STYLE --- */
+.card {
+  width: 100%; max-width: 560px; border-radius: 24px; padding: 24px;
+  position: relative; overflow: hidden; box-sizing: border-box;
+  color: var(--text-main); transition: all 0.3s ease;
+}
+
+/* --- THEME VARIANTS --- */
+/* 1. Dark Theme (Default) */
+.theme-dark {
+  background: linear-gradient(145deg, #1e2026 0%, #151619 100%);
+  border: 1px solid #2a2d35;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+/* 2. Light Theme */
+.theme-light {
+  --text-main: #111;
+  --text-muted: #666;
+  --bg-toggle: #e5e7eb;
+  --bg-toggle-active: #d1d5db;
+  --border-color: #e5e7eb;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+/* 3. Glass Theme */
+.theme-glass {
+  background: rgba(20, 20, 25, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* 4. Flat Theme */
+.theme-flat {
+  background: #111;
+  border: 1px solid transparent;
+}
+
+/* --- ELEMENTS --- */
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: relative; z-index: 2; }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; text-transform: capitalize; }
+.brand img { width: 24px; height: 24px; border-radius: 50%; }
+
+.toggles { background: var(--bg-toggle); padding: 4px; border-radius: 12px; display: inline-flex; }
+.toggles span {
+  font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: 8px;
+  cursor: pointer; color: var(--text-muted); transition: all 0.2s ease;
+}
+.toggles span.active { background: var(--bg-toggle-active); color: var(--text-main); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+.hero { text-align: center; margin: 10px 0 20px 0; position: relative; z-index: 2; }
+.label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+/* Font clamp agar aman di mobile */
+.amount-fiat { font-size: clamp(24px, 5vw, 32px); font-weight: 700; letter-spacing: -0.5px; line-height: 1.2; white-space: nowrap; }
+.amount-coin { font-size: 14px; color: var(--text-muted); margin-top: 4px; font-feature-settings: "tnum"; }
+
+.stats { 
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; 
+  background: rgba(125, 125, 125, 0.05); 
+  padding: 16px; border-radius: 16px; position: relative; z-index: 2;
+}
+.stat-item { text-align: left; }
+.stat-val { font-size: 15px; font-weight: 600; margin-top: 2px; }
+
+.text-up { color: var(--up); }
+.text-down { color: var(--down); }
+.skeleton { background: var(--bg-toggle); color: transparent!important; border-radius: 4px; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%{opacity:0.6} 50%{opacity:1} 100%{opacity:0.6} }
+
+.footer { margin-top: 16px; text-align: center; font-size: 10px; color: var(--text-muted); position: relative; z-index: 2; }
+
+@media(max-width: 480px) {
+  .card { padding: 16px; border-radius: 20px; }
+  .header { margin-bottom: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div id="card" class="card theme-dark">
+  <div class="header">
+    <div class="brand">
+      <img id="coinLogo" src="" alt="">
+      <span id="coinName">Loading...</span>
+    </div>
+    <div class="toggles" id="periodToggle">
+      <span data-p="3m">3M</span>
+      <span data-p="6m">6M</span>
+      <span data-p="1y">1Y</span>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="label" id="baseMeta">Loading...</div>
+    <div class="amount-fiat" id="fiatVal"><span class="skeleton">000,000,000</span></div>
+    <div class="amount-coin" id="coinHold">0.0000</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-item">
+      <div class="label" id="lblChange">Value Change</div>
+      <div class="stat-val" id="chg"><span class="skeleton">...</span></div>
+    </div>
+    <div class="stat-item" style="text-align: right;">
+      <div class="label" id="lblGrowth">Price Growth</div>
+      <div class="stat-val" id="growth"><span class="skeleton">...</span></div>
+    </div>
+  </div>
+  
+  <div class="footer">Data: CoinGecko • FX: Frankfurter</div>
+</div>
+
+<script>
+// --- Config ---
+const p = new URLSearchParams(location.search);
+const coinID  = p.get("coin") || "bitcoin";
+const fiat    = (p.get("fiat") || "IDR").toUpperCase();
+const lang    = (p.get("lang") || "en").toLowerCase();
+const btcThen = parseFloat(p.get("btc_then")) || 0;
+const rawNow  = parseFloat(p.get("btc_now"));
+const btcNow  = isNaN(rawNow) ? btcThen : rawNow;
+const theme   = p.get("theme") || "dark"; 
+
+// --- Apply Theme ---
+const cardEl = document.getElementById('card');
+cardEl.className = `card theme-${theme}`;
+
+const btcThenDateRaw = p.get("btc_then_date");
+const hasThenDate = btcThenDateRaw && btcThenDateRaw.trim() !== "";
+let period = p.get("period") || "3m";
+
+// --- Translations ---
+const DICT = {
+  en: { change: "Value Change", growth: "Price Growth", since: "SINCE" },
+  id: { change: "Perubahan Nilai", growth: "Pertumbuhan Harga", since: "SEJAK" }
+};
+const T = DICT[lang] || DICT.en;
+document.getElementById('lblChange').textContent = `${T.change} (${fiat})`;
+document.getElementById('lblGrowth').textContent = T.growth;
+
+// --- State ---
+const historyCache = {};
+let fxCache = null; 
+let renderId = 0;
+
+// --- Helpers ---
+const $ = (id) => document.getElementById(id);
+
+function monthsAgoSafe(d,n){
+ const t = new Date(d); const day = t.getDate();
+ t.setMonth(t.getMonth()-n);
+ if (t.getDate()!==day) t.setDate(0); return t;
+}
+
+function periodDate(now){
+ if(period==="6m")return monthsAgoSafe(now,6);
+ if(period==="1y")return monthsAgoSafe(now,12);
+ return monthsAgoSafe(now,3);
+}
+
+const SYMBOLS = {
+  IDR: "Rp ", USD: "$", EUR: "€", SGD: "S$", MYR: "RM", GBP: "£", JPY: "¥", KRW: "₩", VND: "₫"
+};
+const isZeroDecimal = ['IDR', 'JPY', 'KRW', 'VND'].includes(fiat);
+
+const moneyFmt = new Intl.NumberFormat(lang === 'id' ? 'id-ID' : 'en-US', {
+  style: 'currency', currency: fiat,
+  minimumFractionDigits: isZeroDecimal ? 0 : 2, maximumFractionDigits: isZeroDecimal ? 0 : 2
+});
+
+function formatMoney(val) { return moneyFmt.format(val); }
+
+function shortMoney(val) {
+  const a = Math.abs(val);
+  const s = val >= 0 ? "+" : "-";
+  const sym = SYMBOLS[fiat] || (fiat + " ");
+  const fmtNum = (n) => n.toLocaleString(lang === 'id' ? 'id-ID' : 'en-US', {
+    minimumFractionDigits: isZeroDecimal ? 0 : 2, maximumFractionDigits: isZeroDecimal ? 0 : 2
+  });
+
+  if(lang === 'id') {
+    if(a>=1e9) return s + sym + fmtNum(a/1e9) + " M";
+    if(a>=1e6) return s + sym + fmtNum(a/1e6) + " Jt";
+  } else {
+    if(a>=1e9) return s + sym + fmtNum(a/1e9) + " B";
+    if(a>=1e6) return s + sym + fmtNum(a/1e6) + " M";
+  }
+  return s + moneyFmt.format(a); 
+}
+
+// --- Toggle ---
+document.querySelectorAll("#periodToggle span").forEach(el=>{
+ if(el.dataset.p===period) el.classList.add("active");
+ el.onclick=()=>{
+  period=el.dataset.p;
+  document.querySelectorAll("#periodToggle span").forEach(s=>s.classList.remove("active"));
+  el.classList.add("active");
+  render();
+ };
+});
+
+// --- API ---
+async function getFX(){
+ if(fiat === "USD") return 1; 
+ const now = Date.now();
+ if (fxCache && (now - fxCache.ts < 300000)) return fxCache.val;
+ try {
+   const r=await fetch(`https://api.frankfurter.app/latest?from=USD&to=${fiat}`);
+   const data = await r.json();
+   fxCache = { val: data.rates[fiat], ts: now };
+   return fxCache.val;
+ } catch(e) { return fxCache ? fxCache.val : (fiat==="IDR"?16400:1); }
+}
+
+async function getCoinHistory(date){
+ const offset = date.getTimezoneOffset() * 60000;
+ const key = new Date(date.getTime() - offset).toISOString().slice(0,10);
+ if (historyCache[key]) return historyCache[key];
+ 
+ const d = key.split("-").reverse().join("-");
+ try {
+   const r=await fetch(`https://api.coingecko.com/api/v3/coins/${coinID}/history?date=${d}`);
+   const j=await r.json();
+   if(!j.market_data) throw new Error("No Data");
+   historyCache[key] = j.market_data.current_price.usd;
+   return historyCache[key];
+ } catch(e){ return null; }
+}
+
+// --- Main Render (Tanpa Chart) ---
+async function render(){
+ const myId = ++renderId;
+ try{
+  const now=new Date();
+  const periodBase=periodDate(now);
+  let thenBase=null;
+  if(hasThenDate){
+    const t=new Date(btcThenDateRaw);
+    if(!isNaN(t) && t < now) thenBase=t;
+  }
+  const baseDate = (thenBase && thenBase > periodBase) ? thenBase : periodBase;
+  const offset = baseDate.getTimezoneOffset() * 60000;
+  const cacheKey = new Date(baseDate.getTime() - offset).toISOString().slice(0,10);
+  
+  if(!historyCache[cacheKey]) {
+    $("fiatVal").innerHTML = '<span class="skeleton">000,000,000</span>';
+    $("growth").innerHTML = '<span class="skeleton">...</span>';
+  }
+
+  const [coinRes, fx, priceThen] = await Promise.all([
+    fetch(`https://api.coingecko.com/api/v3/coins/${coinID}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`),
+    getFX(),
+    getCoinHistory(baseDate)
+  ]);
+
+  if(myId !== renderId) return;
+
+  const coinData = await coinRes.json();
+  const priceNowUSD = coinData.market_data.current_price.usd;
+  const coinSymbol = coinData.symbol.toUpperCase();
+  
+  $("coinLogo").src = coinData.image.small;
+  $("coinName").textContent = coinData.name;
+
+  const validPriceThen = priceThen || priceNowUSD; 
+  const valNowUSD  = btcNow * priceNowUSD;
+  const valThenUSD = btcThen * validPriceThen;
+  const deltaFiat  = (valNowUSD - valThenUSD) * fx;
+  const priceGrowthPct = ((priceNowUSD - validPriceThen) / validPriceThen) * 100;
+  const totalFiat = valNowUSD * fx;
+
+  $("coinHold").textContent = `${btcNow} ${coinSymbol}`;
+  $("baseMeta").textContent = `${T.since} ${baseDate.toLocaleDateString(lang==='id'?'id-ID':'en-US', {day:'numeric', month:'short', year:'numeric'}).toUpperCase()}`;
+  $("fiatVal").textContent = formatMoney(totalFiat);
+  
+  if (!priceThen) {
+    $("growth").textContent = "N/A"; $("growth").className = "stat-val";
+    $("chg").textContent = "No Data";
+  } else {
+    const gEl = $("growth");
+    gEl.textContent = (priceGrowthPct>=0?"+":"")+priceGrowthPct.toFixed(2)+"%";
+    gEl.className = "stat-val " + (priceGrowthPct>=0?"text-up":"text-down");
+    const cEl = $("chg");
+    cEl.textContent = shortMoney(deltaFiat); 
+    cEl.className = "stat-val " + (deltaFiat>=0?"text-up":"text-down");
+  }
+ }catch(e){ console.error(e); }
+}
+
+render();
+setInterval(()=>{ if(!document.hidden) render(); }, 60000);
+</script>
+</body>
+</html>
