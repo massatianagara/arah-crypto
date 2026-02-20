@@ -18,13 +18,11 @@
   --border-color: #2a2d35;
 }
 
-/* FIX LAYOUT: Tinggi 100% dari Iframe agar tidak ada ruang transparan */
 html, body {
   margin: 0; padding: 0; width: 100%; height: 100%;
   font-family: 'Inter', sans-serif; background: transparent; overflow: hidden;
 }
 
-/* FIX: Card mengisi 100% frame dan membagi jarak konten secara merata di dalam */
 .card {
   width: 100%; height: 100%; max-width: 560px; margin: 0 auto;
   border-radius: 24px; padding: 24px;
@@ -39,7 +37,7 @@ html, body {
 .theme-glass { background: rgba(20, 20, 25, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); }
 .theme-flat { background: #111; border: 1px solid transparent; }
 
-/* --- ELEMENTS (Semua margin luar dihapus, dihandle oleh Flexbox) --- */
+/* --- ELEMENTS --- */
 .header { display: flex; justify-content: space-between; align-items: center; margin: 0; position: relative; z-index: 2; }
 .brand { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; text-transform: capitalize; }
 .brand img { width: 24px; height: 24px; border-radius: 50%; }
@@ -74,7 +72,7 @@ html, body {
 <div id="card" class="card theme-dark">
   <div class="header">
     <div class="brand">
-      <img id="coinLogo" src="" alt="">
+      <img id="coinLogo" src="" alt="" onerror="this.style.display='none'">
       <span id="coinName">Loading...</span>
     </div>
     <div class="toggles" id="periodToggle">
@@ -121,6 +119,11 @@ const btcThenDateRaw = p.get("btc_then_date");
 const hasThenDate = btcThenDateRaw && btcThenDateRaw.trim() !== "";
 let period = p.get("period") || "3m";
 
+// PATCH 4: Sembunyikan toggle jika ada custom date
+if (hasThenDate) {
+  document.getElementById("periodToggle").style.display = "none";
+}
+
 const DICT = {
   en: { change: "Value Change", growth: "Market Price", since: "SINCE" },
   id: { change: "Perubahan Nilai", growth: "Harga Pasar", since: "SEJAK" }
@@ -162,10 +165,19 @@ document.querySelectorAll("#periodToggle span").forEach(el=>{
  };
 });
 
+// PATCH 3: Fallback Mata Uang Lengkap
 async function getFX(){
  if(fiat === "USD") return 1; const now = Date.now(); if (fxCache && (now - fxCache.ts < 300000)) return fxCache.val;
- try { const r=await fetch(`https://api.frankfurter.app/latest?from=USD&to=${fiat}`); const data = await r.json(); fxCache = { val: data.rates[fiat], ts: now }; return fxCache.val; } 
- catch(e) { return fxCache ? fxCache.val : (fiat==="IDR"?16400:1); }
+ try { 
+   const r=await fetch(`https://api.frankfurter.app/latest?from=USD&to=${fiat}`); 
+   const data = await r.json(); 
+   fxCache = { val: data.rates[fiat], ts: now }; 
+   return fxCache.val; 
+ } catch(e) { 
+   if (fxCache) return fxCache.val;
+   const fallbacks = { IDR: 16400, EUR: 0.95, SGD: 1.35, MYR: 4.70, JPY: 150, GBP: 0.79, KRW: 1330, VND: 25000 };
+   return fallbacks[fiat] || 1; 
+ }
 }
 
 async function getCoinHistory(date){
@@ -175,29 +187,32 @@ async function getCoinHistory(date){
  catch(e){ return null; }
 }
 
-// --- FUNGSI CACHE COINGECKO (5 Menit) ---
+// PATCH 1: Safari ITP & Error Iframe LocalStorage Bypass
 async function getCoinData(coin) {
   const cacheKey = `satia_cg_cache_${coin}`;
-  const cached = localStorage.getItem(cacheKey);
   const now = Date.now();
+  let cached = null;
+  
+  try { cached = localStorage.getItem(cacheKey); } catch(e) { console.warn("Cache blocked"); }
   
   if (cached) {
-    const parsed = JSON.parse(cached);
-    if (now - parsed.ts < 300000) return parsed.data; // Gunakan cache jika usia < 5 menit
+    try {
+      const parsed = JSON.parse(cached);
+      if (now - parsed.ts < 300000) return parsed.data;
+    } catch(e) {}
   }
   
   try {
     const res = await fetch(`https://api.coingecko.com/api/v3/coins/${coin}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`);
     if (!res.ok) throw new Error("API Error");
     const data = await res.json();
-    localStorage.setItem(cacheKey, JSON.stringify({ ts: now, data: data }));
+    try { localStorage.setItem(cacheKey, JSON.stringify({ ts: now, data: data })); } catch(e) {}
     return data;
   } catch (err) {
-    if (cached) return JSON.parse(cached).data; // Fallback ke cache lama jika limit
+    if (cached) return JSON.parse(cached).data;
     throw err;
   }
 }
-// ----------------------------------------
   
 async function render(){
  const myId = ++renderId;
@@ -209,7 +224,6 @@ async function render(){
   
   if(!historyCache[cacheKey]) { $("fiatVal").innerHTML = '<span class="skeleton">000,000,000</span>'; $("growth").innerHTML = '<span class="skeleton">...</span>'; }
 
-  // Menggunakan fungsi getCoinData yang sudah di-cache
   const [coinData, fx, priceThen] = await Promise.all([ 
     getCoinData(coinID), 
     getFX(), 
@@ -217,12 +231,16 @@ async function render(){
   ]);
   
   if(myId !== renderId) return; const priceNowUSD = coinData.market_data.current_price.usd; const coinSymbol = coinData.symbol.toUpperCase();
-  $("coinLogo").src = coinData.image.small; $("coinName").textContent = coinData.name;
+  $("coinLogo").src = coinData.image.small; $("coinLogo").style.display = "block"; $("coinName").textContent = coinData.name;
 
   const validPriceThen = priceThen || priceNowUSD; const valNowUSD  = btcNow * priceNowUSD; const valThenUSD = btcThen * validPriceThen;
   const deltaFiat  = (valNowUSD - valThenUSD) * fx; const priceGrowthPct = ((priceNowUSD - validPriceThen) / validPriceThen) * 100; const totalFiat = valNowUSD * fx;
 
-  $("coinHold").textContent = `${btcNow} ${coinSymbol}`; $("baseMeta").textContent = `${T.since} ${baseDate.toLocaleDateString(lang==='id'?'id-ID':'en-US', {day:'numeric', month:'short', year:'numeric'}).toUpperCase()}`;
+  // PATCH 5: Batasan Desimal Pintar (Maks 8 Desimal)
+  const displayCoin = Number.isInteger(btcNow) ? btcNow : parseFloat(btcNow.toFixed(8));
+  $("coinHold").textContent = `${displayCoin} ${coinSymbol}`; 
+  
+  $("baseMeta").textContent = `${T.since} ${baseDate.toLocaleDateString(lang==='id'?'id-ID':'en-US', {day:'numeric', month:'short', year:'numeric'}).toUpperCase()}`;
   $("fiatVal").textContent = formatMoney(totalFiat);
   
   if (!priceThen) { $("growth").textContent = "N/A"; $("growth").className = "stat-val"; $("chg").textContent = "No Data"; } 
@@ -230,7 +248,19 @@ async function render(){
     const gEl = $("growth"); gEl.textContent = (priceGrowthPct>=0?"+":"")+priceGrowthPct.toFixed(2)+"%"; gEl.className = "stat-val " + (priceGrowthPct>=0?"text-up":"text-down");
     const cEl = $("chg"); cEl.textContent = shortMoney(deltaFiat); cEl.className = "stat-val " + (deltaFiat>=0?"text-up":"text-down");
   }
- }catch(e){ console.error(e); }
+ } catch(e) { 
+   // PATCH 2: Tangani Error API Limit di UI (Hilangkan Skeleton)
+   console.error("Render Error:", e);
+   if(myId !== renderId) return;
+   $("fiatVal").innerHTML = `<span style="font-size:18px; color:var(--text-muted)">Data Unavailable</span>`;
+   $("growth").textContent = "API Limit";
+   $("growth").className = "stat-val text-down";
+   $("chg").textContent = "Try again later";
+   $("chg").className = "stat-val text-down";
+   $("baseMeta").textContent = "NETWORK ERROR";
+   $("coinName").textContent = "Error";
+   $("coinLogo").style.display = "none";
+ }
 }
 
 render(); setInterval(()=>{ if(!document.hidden) render(); }, 300000);
