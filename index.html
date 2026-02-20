@@ -15,8 +15,8 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Free Crypto Embed Widget Generator">
 <meta property="og:description" content="The easiest way to display crypto portfolio growth on your site. Privacy-first & Open Source.">
-<meta property="og:url" content="https://massatianagara.github.io/arah-crypto/">
-<meta property="og:image" content="https://massatianagara.github.io/arah-crypto/preview.jpg"> 
+<meta property="og:url" content="https://massatianagara.github.io/arah-bitcoin/">
+<meta property="og:image" content="https://massatianagara.github.io/arah-bitcoin/preview.jpg"> 
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -157,7 +157,8 @@ input:focus, select:focus { outline: none; border-color: var(--primary); box-sha
 /* Preview */
 .preview-wrapper { position: sticky; top: 100px; }
 iframe { 
-  width: 100%; height: 360px; border: 0; border-radius: 24px; 
+  /* FIX: Ubah height dari 360px menjadi 260px agar pas dengan widget */
+  width: 100%; height: 260px; border: 0; border-radius: 24px; 
   background: transparent; 
   filter: drop-shadow(0 20px 30px rgba(0,0,0,0.15)); 
   transition: transform 0.2s; 
@@ -195,7 +196,7 @@ body.light-mode .features { background: rgba(255,255,255,0.5); }
 .feat-card h3 { margin: 0 0 10px; font-size: 18px; font-weight: 700; }
 .feat-card p { margin: 0; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
 
-/* --- Specs Section (New for README Alignment) --- */
+/* --- Specs Section --- */
 .specs { padding: 80px 0; border-top: 1px solid var(--surface-border); }
 .specs-box { 
   background: var(--surface); border: 1px solid var(--surface-border); 
@@ -223,14 +224,14 @@ footer { padding: 50px 0; border-top: 1px solid var(--surface-border); text-alig
   <div class="container">
     <a href="#" class="logo">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-      <span>Satia</span>Crypto<span>Embed</span>
+      Crypto<span>Embed</span>
     </a>
     <div class="nav-links">
       <button class="theme-toggle" onclick="toggleSiteTheme()" title="Switch Theme">
         <span id="theme-icon">☀</span>
       </button>
       
-      <a href="https://github.com/massatianagara/arah-crypto" target="_blank" class="btn btn-outline" style="padding: 10px 18px; font-size: 13px;">
+      <a href="https://github.com/massatianagara/arah-bitcoin" target="_blank" class="btn btn-outline" style="padding: 10px 18px; font-size: 13px;">
         GitHub
       </a>
       <a href="https://sociabuzz.com/massatianagara/donate" target="_blank" class="btn donate-btn" style="padding: 10px 20px; font-size: 13px;">
@@ -245,7 +246,7 @@ footer { padding: 50px 0; border-top: 1px solid var(--surface-border); text-alig
     <div class="hero-header">
       <span class="badge">Open Source Project</span>
       <h1>Crypto Portfolio Tracker <span style="color:var(--primary)">Widget</span></h1>
-      <p>Create beautiful, privacy-focused crypto embeds for your website, blog, bio link, or Notion. No coding or backend required.</p>
+      <p>Create beautiful, privacy-focused crypto embeds for your website, blog, or Notion. No coding or backend required.</p>
     </div>
 
     <div class="gen-grid">
@@ -421,7 +422,7 @@ footer { padding: 50px 0; border-top: 1px solid var(--surface-border); text-alig
 
 <footer>
   <div class="container">
-    <p>&copy; 2026 CryptoEmbed by <a href="https://satia.id" target="_blank">Satia Studio</a>. MIT License.</p>
+    <p>&copy; 2026 CryptoEmbed by <a href="https://github.com/massatianagara" target="_blank">Satia</a>. MIT License.</p>
     <p style="opacity: 0.5; font-size: 12px; margin-top: 10px;">
       Data provided by CoinGecko & Frankfurter API. Not financial advice.
     </p>
@@ -463,7 +464,8 @@ function generate(){
  const src = `${baseUrl}embed.html?${params.toString()}`;
  document.getElementById('preview').src = src;
  
- const embedCode = `<iframe src="${src}" style="width:100%;max-width:560px;height:360px;border:0;border-radius:24px;overflow:hidden;background:transparent;" loading="lazy" title="Crypto Portfolio Widget"></iframe>`;
+ // FIX: Ubah height di kode embed menjadi 260px agar user yang copy code otomatis dapat ukuran yang rapat
+ const embedCode = `<iframe src="${src}" style="width:100%;max-width:560px;height:260px;border:0;border-radius:24px;overflow:hidden;background:transparent;" loading="lazy" title="Crypto Portfolio Widget"></iframe>`;
  document.getElementById('code').value = embedCode;
 }
 
