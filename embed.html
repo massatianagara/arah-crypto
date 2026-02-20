@@ -96,7 +96,7 @@ html, body {
       <div class="stat-val" id="chg"><span class="skeleton">...</span></div>
     </div>
     <div class="stat-item" style="text-align: right;">
-      <div class="label" id="lblGrowth">Price Growth</div>
+      <div class="label" id="lblGrowth">Market Price</div>
       <div class="stat-val" id="growth"><span class="skeleton">...</span></div>
     </div>
   </div>
@@ -122,8 +122,8 @@ const hasThenDate = btcThenDateRaw && btcThenDateRaw.trim() !== "";
 let period = p.get("period") || "3m";
 
 const DICT = {
-  en: { change: "Value Change", growth: "Price Growth", since: "SINCE" },
-  id: { change: "Perubahan Nilai", growth: "Pertumbuhan Harga", since: "SEJAK" }
+  en: { change: "Value Change", growth: "Market Price", since: "SINCE" },
+  id: { change: "Perubahan Nilai", growth: "Harga Pasar", since: "SEJAK" }
 };
 const T = DICT[lang] || DICT.en;
 document.getElementById('lblChange').textContent = `${T.change} (${fiat})`;
