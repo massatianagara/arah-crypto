@@ -216,6 +216,27 @@ body.light-mode .features { background: rgba(255,255,255,0.5); }
 @keyframes beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
 footer { padding: 50px 0; border-top: 1px solid var(--surface-border); text-align: center; color: var(--text-muted); font-size: 14px; }
+
+/* --- MOBILE FIX: Header & Hero Section --- */
+
+/* Tablet & Mobile: Kurangi ukuran teks besar dan jarak kosong */
+@media (max-width: 768px) {
+  .hero { padding: 40px 0 50px; } 
+  .hero h1 { font-size: 32px; letter-spacing: -1px; } 
+  .hero p { font-size: 15px; } 
+}
+
+/* Khusus Mobile Kecil: Sesuaikan ukuran Logo & Tombol Navigasi agar tidak berdesakan */
+@media (max-width: 480px) {
+  nav { padding: 12px 0; }
+  .logo { font-size: 16px; gap: 5px; }
+  .logo svg { width: 20px; height: 20px; }
+  
+  .nav-links { gap: 6px; }
+  .nav-links .btn { padding: 6px 10px !important; font-size: 11px !important; }
+  .theme-toggle { font-size: 16px; padding: 2px; }
+}
+  
 </style>
 </head>
 <body>
