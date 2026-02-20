@@ -216,36 +216,6 @@ body.light-mode .features { background: rgba(255,255,255,0.5); }
 @keyframes beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
 footer { padding: 50px 0; border-top: 1px solid var(--surface-border); text-align: center; color: var(--text-muted); font-size: 14px; }
-  /* 1. Responsif Hero Teks (Otomatis mengecil di HP) */
-.hero h1 { 
-  font-size: clamp(32px, 8vw, 48px); 
-}
-
-/* 2. Perbaikan Navbar untuk HP kecil */
-@media(max-width: 480px) {
-  .logo { font-size: 16px; }
-  .logo svg { width: 20px; height: 20px; }
-  .nav-links .btn { padding: 8px 12px; font-size: 11px; }
-}
-
-/* 3. Perbaikan Grid, Kolom Input, dan UX Mobile */
-@media(max-width: 900px) { 
-  .gen-grid { 
-    display: flex; 
-    /* Trik Flexbox: Memindah Preview ke atas Form HANYA saat di HP */
-    flex-direction: column-reverse; 
-    gap: 40px; 
-  }
-  
-  .preview-wrapper { 
-    position: relative; 
-    top: 0; /* Menghilangkan efek sticky di HP agar scroll aman */
-  }
-  
-  .row { 
-    grid-template-columns: 1fr; /* Mengubah form dari 2 kolom menjadi 1 kolom penuh */
-  }
-}
 </style>
 </head>
 <body>
