@@ -206,8 +206,22 @@ body.light-mode .features { background: rgba(255,255,255,0.5); }
 @media(max-width: 768px) { .specs-box { grid-template-columns: 1fr; } }
 
 .spec-list { list-style: none; padding: 0; margin: 0; }
-.spec-list li { margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px; color: var(--text-muted); font-size: 14px; }
-.spec-list li::before { content: '•'; color: var(--primary); font-weight: bold; }
+.spec-list li { 
+  margin-bottom: 15px; 
+  position: relative; 
+  padding-left: 18px; /* Memberi ruang untuk bullet */
+  color: var(--text-muted); 
+  font-size: 14px; 
+  line-height: 1.6;
+}
+.spec-list li::before { 
+  content: '•'; 
+  color: var(--primary); 
+  font-weight: bold; 
+  position: absolute; /* Membuat bullet presisi di kiri */
+  left: 0;
+  top: 0;
+}
 .specs h3 { margin-top: 0; font-size: 20px; margin-bottom: 20px; }
 
 /* --- Donate --- */
@@ -244,8 +258,10 @@ footer { padding: 50px 0; border-top: 1px solid var(--surface-border); text-alig
 <nav>
   <div class="container">
     <a href="#" class="logo">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-    Satia<span>Crypto</span>Embed
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--primary)" xmlns="http://www.w3.org/2000/svg">
+        <path d="M14.636 10.222c.49-3.265-2.004-4.22-4.04-4.708l.82-3.29-2.022-.505-.806 3.238c-.53-.133-1.077-.258-1.616-.385l.816-3.27-2.02-.505-.826 3.32c-.44-.105-.868-.205-1.28-.302l-.002-.01-2.793-.697-.538 2.162s1.503.344 1.472.366c.82.205.97.74.945 1.168l-1.898 7.625c-.066.152-.236.38-.925.207.025.028-1.473-.367-1.473-.367l-1.008 2.302 2.637.658c.49.123.974.254 1.455.378l-.83 3.34 2.02.505.816-3.278c.55.145 1.087.28 1.61.413l-.82 3.296 2.022.505.83-3.336c2.782.528 4.88.318 5.76-2.193.708-2.02-.05-3.187-1.498-3.95.83-.192 1.456-.704 1.617-1.785zm-2.484 5.372c-.675 2.71-5.234 1.252-6.708.884l1.2-4.815c1.474.367 6.22 1.066 5.508 3.93zm.507-5.07c-.615 2.47-4.417 1.185-5.632.883l1.086-4.36c1.215.303 5.19 1.056 4.546 3.477z"/>
+      </svg>
+      <span>Crypto</span>Embed
     </a>
     <div class="nav-links">
       <button class="theme-toggle" onclick="toggleSiteTheme()" title="Switch Theme">
