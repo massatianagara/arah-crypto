@@ -175,6 +175,30 @@ async function getCoinHistory(date){
  catch(e){ return null; }
 }
 
+// --- FUNGSI CACHE COINGECKO (5 Menit) ---
+async function getCoinData(coin) {
+  const cacheKey = `satia_cg_cache_${coin}`;
+  const cached = localStorage.getItem(cacheKey);
+  const now = Date.now();
+  
+  if (cached) {
+    const parsed = JSON.parse(cached);
+    if (now - parsed.ts < 300000) return parsed.data; // Gunakan cache jika usia < 5 menit
+  }
+  
+  try {
+    const res = await fetch(`https://api.coingecko.com/api/v3/coins/${coin}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`);
+    if (!res.ok) throw new Error("API Error");
+    const data = await res.json();
+    localStorage.setItem(cacheKey, JSON.stringify({ ts: now, data: data }));
+    return data;
+  } catch (err) {
+    if (cached) return JSON.parse(cached).data; // Fallback ke cache lama jika limit
+    throw err;
+  }
+}
+// ----------------------------------------
+  
 async function render(){
  const myId = ++renderId;
  try{
@@ -185,10 +209,14 @@ async function render(){
   
   if(!historyCache[cacheKey]) { $("fiatVal").innerHTML = '<span class="skeleton">000,000,000</span>'; $("growth").innerHTML = '<span class="skeleton">...</span>'; }
 
-  const [coinRes, fx, priceThen] = await Promise.all([ fetch(`https://api.coingecko.com/api/v3/coins/${coinID}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`), getFX(), getCoinHistory(baseDate) ]);
-  if(myId !== renderId) return;
-
-  const coinData = await coinRes.json(); const priceNowUSD = coinData.market_data.current_price.usd; const coinSymbol = coinData.symbol.toUpperCase();
+  // Menggunakan fungsi getCoinData yang sudah di-cache
+  const [coinData, fx, priceThen] = await Promise.all([ 
+    getCoinData(coinID), 
+    getFX(), 
+    getCoinHistory(baseDate) 
+  ]);
+  
+  if(myId !== renderId) return; const priceNowUSD = coinData.market_data.current_price.usd; const coinSymbol = coinData.symbol.toUpperCase();
   $("coinLogo").src = coinData.image.small; $("coinName").textContent = coinData.name;
 
   const validPriceThen = priceThen || priceNowUSD; const valNowUSD  = btcNow * priceNowUSD; const valThenUSD = btcThen * validPriceThen;
@@ -205,7 +233,7 @@ async function render(){
  }catch(e){ console.error(e); }
 }
 
-render(); setInterval(()=>{ if(!document.hidden) render(); }, 60000);
+render(); setInterval(()=>{ if(!document.hidden) render(); }, 300000);
 </script>
 </body>
 </html>
