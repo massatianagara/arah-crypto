@@ -56,6 +56,11 @@ html, body {
 .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0; background: rgba(125, 125, 125, 0.05); padding: 16px; border-radius: 16px; position: relative; z-index: 2; }
 .stat-item { text-align: left; }
 .stat-val { font-size: 15px; font-weight: 600; margin-top: 2px; }
+.tooltip {
+  display: inline-block; cursor: help; background: var(--border-color); 
+  color: var(--text-muted); border-radius: 50%; width: 14px; height: 14px; 
+  text-align: center; line-height: 14px; font-size: 10px; margin-left: 4px;
+}
 
 .text-up { color: var(--up); }
 .text-down { color: var(--down); }
@@ -92,7 +97,10 @@ html, body {
 
   <div class="stats">
     <div class="stat-item">
-      <div class="label" id="lblChange">Value Change</div>
+      <div class="label" id="lblChange">
+        Value Change 
+        <span id="tooltip" class="tooltip" style="display:none;" title="">?</span>
+      </div>
       <div class="stat-val" id="chg"><span class="skeleton">...</span></div>
     </div>
     <div class="stat-item" style="text-align: right;">
@@ -122,8 +130,8 @@ const hasThenDate = btcThenDateRaw && btcThenDateRaw.trim() !== "";
 let period = p.get("period") || "3m";
 
 const DICT = {
-  en: { change: "Value Change", growth: "Price Growth", since: "SINCE" },
-  id: { change: "Perubahan Nilai", growth: "Pertumbuhan Harga", since: "SEJAK" }
+  en: { change: "Value Change", growth: "Market Price", since: "SINCE" },
+  id: { change: "Perubahan Nilai", growth: "Harga Pasar", since: "SEJAK" }
 };
 const T = DICT[lang] || DICT.en;
 document.getElementById('lblChange').textContent = `${T.change} (${fiat})`;
@@ -222,8 +230,26 @@ async function render(){
   const validPriceThen = priceThen || priceNowUSD; const valNowUSD  = btcNow * priceNowUSD; const valThenUSD = btcThen * validPriceThen;
   const deltaFiat  = (valNowUSD - valThenUSD) * fx; const priceGrowthPct = ((priceNowUSD - validPriceThen) / validPriceThen) * 100; const totalFiat = valNowUSD * fx;
 
-  $("coinHold").textContent = `${btcNow} ${coinSymbol}`; $("baseMeta").textContent = `${T.since} ${baseDate.toLocaleDateString(lang==='id'?'id-ID':'en-US', {day:'numeric', month:'short', year:'numeric'}).toUpperCase()}`;
+  $("coinHold").textContent = `${btcNow} ${coinSymbol}`; 
+  $("baseMeta").textContent = `${T.since} ${baseDate.toLocaleDateString(lang==='id'?'id-ID':'en-US', {day:'numeric', month:'short', year:'numeric'}).toUpperCase()}`;
   $("fiatVal").textContent = formatMoney(totalFiat);
+  
+  // Mengubah Label 'Price Growth' menjadi dinamis (Contoh: 'BTC Market Price')
+  $("lblGrowth").textContent = `${coinSymbol} ${T.growth}`;
+  
+  // Logika Tooltip jika ada penambahan/pengurangan koin
+  const tooltip = $("tooltip");
+  if (btcNow !== btcThen) {
+    const diff = parseFloat((btcNow - btcThen).toFixed(6));
+    const actionEn = diff > 0 ? "addition" : "reduction";
+    const actionId = diff > 0 ? "penambahan" : "pengurangan";
+    tooltip.style.display = "inline-block";
+    tooltip.title = lang === 'id' 
+      ? `Termasuk ${actionId} aset sebesar ${Math.abs(diff)} ${coinSymbol}` 
+      : `Includes asset ${actionEn} of ${Math.abs(diff)} ${coinSymbol}`;
+  } else {
+    tooltip.style.display = "none";
+  }
   
   if (!priceThen) { $("growth").textContent = "N/A"; $("growth").className = "stat-val"; $("chg").textContent = "No Data"; } 
   else {
