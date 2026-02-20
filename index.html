@@ -15,8 +15,8 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Free Crypto Embed Widget Generator">
 <meta property="og:description" content="The easiest way to display crypto portfolio growth on your site. Privacy-first & Open Source.">
-<meta property="og:url" content="https://massatianagara.github.io/arah-bitcoin/">
-<meta property="og:image" content="https://massatianagara.github.io/arah-bitcoin/preview.jpg"> 
+<meta property="og:url" content="https://massatianagara.github.io/arah-crypto/">
+<meta property="og:image" content="https://massatianagara.github.io/arah-crypto/preview.jpg"> 
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -157,7 +157,8 @@ input:focus, select:focus { outline: none; border-color: var(--primary); box-sha
 /* Preview */
 .preview-wrapper { position: sticky; top: 100px; }
 iframe { 
-  width: 100%; height: 360px; border: 0; border-radius: 24px; 
+  /* FIX: Diturunkan jadi 280px agar pas dengan widget */
+  width: 100%; height: 280px; border: 0; border-radius: 24px; 
   background: transparent; 
   filter: drop-shadow(0 20px 30px rgba(0,0,0,0.15)); 
   transition: transform 0.2s; 
@@ -230,7 +231,7 @@ footer { padding: 50px 0; border-top: 1px solid var(--surface-border); text-alig
         <span id="theme-icon">☀</span>
       </button>
       
-      <a href="https://github.com/massatianagara/arah-bitcoin" target="_blank" class="btn btn-outline" style="padding: 10px 18px; font-size: 13px;">
+      <a href="https://github.com/massatianagara/arah-crypto" target="_blank" class="btn btn-outline" style="padding: 10px 18px; font-size: 13px;">
         GitHub
       </a>
       <a href="https://sociabuzz.com/massatianagara/donate" target="_blank" class="btn donate-btn" style="padding: 10px 20px; font-size: 13px;">
@@ -421,7 +422,7 @@ footer { padding: 50px 0; border-top: 1px solid var(--surface-border); text-alig
 
 <footer>
   <div class="container">
-    <p>&copy; 2026 CryptoEmbed by <a href="https://github.com/massatianagara" target="_blank">Satia</a>. MIT License.</p>
+    <p>&copy; 2026 CryptoEmbed by <a href="https://satia.id" target="_blank">Satia Studio</a>. MIT License.</p>
     <p style="opacity: 0.5; font-size: 12px; margin-top: 10px;">
       Data provided by CoinGecko & Frankfurter API. Not financial advice.
     </p>
@@ -463,8 +464,8 @@ function generate(){
  const src = `${baseUrl}embed.html?${params.toString()}`;
  document.getElementById('preview').src = src;
  
- // FIX: Ubah height di kode embed menjadi 270px
- const embedCode = `<iframe src="${src}" style="width:100%;max-width:560px;height:270px;border:0;border-radius:24px;overflow:hidden;background:transparent;" loading="lazy" title="Crypto Portfolio Widget"></iframe>`;
+ // FIX: Height diubah menjadi 280px & ditambah display:block agar margin transparan hilang di Linktree.
+ const embedCode = `<iframe src="${src}" style="width:100%;max-width:560px;height:280px;border:0;border-radius:24px;display:block;margin:0 auto;overflow:hidden;background:transparent;" loading="lazy" title="Crypto Portfolio Widget"></iframe>`;
  document.getElementById('code').value = embedCode;
 }
 
