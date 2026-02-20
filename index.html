@@ -77,14 +77,14 @@ a { text-decoration: none; color: inherit; }
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: -2; 
-  pointer-events: none; 
-  opacity: 0.6; 
+  z-index: -2; /* Berada di paling belakang */
+  pointer-events: none; /* Agar tidak mengganggu klik form/tombol */
+  opacity: 0.6; /* Transparansi agar tidak terlalu mencolok */
   transition: opacity 0.5s ease;
 }
 
 body.light-mode #crypto-network {
-  opacity: 0.8; 
+  opacity: 0.8; /* Lebih tipis kalau di Light Mode */
 }
 
 /* --- Components --- */
@@ -174,6 +174,7 @@ input:focus, select:focus { outline: none; border-color: var(--primary); box-sha
 /* Preview */
 .preview-wrapper { position: sticky; top: 100px; }
 iframe { 
+  /* FIX: Diturunkan jadi 280px agar pas dengan widget */
   width: 100%; height: 280px; border: 0; border-radius: 24px; 
   background: transparent; 
   filter: drop-shadow(0 20px 30px rgba(0,0,0,0.15)); 
@@ -225,7 +226,7 @@ body.light-mode .features { background: rgba(255,255,255,0.5); }
 .spec-list li { 
   margin-bottom: 15px; 
   position: relative; 
-  padding-left: 18px; 
+  padding-left: 18px; /* Memberi ruang untuk bullet */
   color: var(--text-muted); 
   font-size: 14px; 
   line-height: 1.6;
@@ -234,7 +235,7 @@ body.light-mode .features { background: rgba(255,255,255,0.5); }
   content: '•'; 
   color: var(--primary); 
   font-weight: bold; 
-  position: absolute; 
+  position: absolute; /* Membuat bullet presisi di kiri */
   left: 0;
   top: 0;
 }
@@ -248,12 +249,15 @@ body.light-mode .features { background: rgba(255,255,255,0.5); }
 footer { padding: 50px 0; border-top: 1px solid var(--surface-border); text-align: center; color: var(--text-muted); font-size: 14px; }
 
 /* --- MOBILE FIX: Header & Hero Section --- */
+
+/* Tablet & Mobile: Kurangi ukuran teks besar dan jarak kosong */
 @media (max-width: 768px) {
   .hero { padding: 40px 0 50px; } 
   .hero h1 { font-size: 32px; letter-spacing: -1px; } 
   .hero p { font-size: 15px; } 
 }
 
+/* Khusus Mobile Kecil: Sesuaikan ukuran Logo & Tombol Navigasi agar tidak berdesakan */
 @media (max-width: 480px) {
   nav { padding: 12px 0; }
   .logo { font-size: 16px; gap: 5px; }
@@ -263,6 +267,7 @@ footer { padding: 50px 0; border-top: 1px solid var(--surface-border); text-alig
   .nav-links .btn { padding: 6px 10px !important; font-size: 11px !important; }
   .theme-toggle { font-size: 16px; padding: 2px; }
 }
+  
 </style>
 </head>
 <body>
@@ -279,6 +284,7 @@ footer { padding: 50px 0; border-top: 1px solid var(--surface-border); text-alig
       <button class="theme-toggle" onclick="toggleSiteTheme()" title="Switch Theme">
         <span id="theme-icon">☀</span>
       </button>
+      
       <a href="https://github.com/massatianagara/arah-crypto" target="_blank" class="btn btn-outline" style="padding: 10px 18px; font-size: 13px;">
         GitHub
       </a>
@@ -484,6 +490,7 @@ const getBaseUrl = () => {
   return loc.origin + path;
 };
 
+// --- Site Theme Logic ---
 function toggleSiteTheme() {
   const body = document.body;
   body.classList.toggle('light-mode');
@@ -511,6 +518,7 @@ function generate(){
  const src = `${baseUrl}embed.html?${params.toString()}`;
  document.getElementById('preview').src = src;
  
+ // FIX: Height diubah menjadi 280px & ditambah display:block agar margin transparan hilang di Linktree.
  const embedCode = `<iframe src="${src}" style="width:100%;max-width:560px;height:280px;border:0;border-radius:24px;display:block;margin:0 auto;overflow:hidden;background:transparent;" loading="lazy" title="Crypto Portfolio Widget"></iframe>`;
  document.getElementById('code').value = embedCode;
 }
@@ -534,6 +542,7 @@ function copyCode(btn) {
   }, 2000);
 }
 
+// --- Blockchain Network Animation (Canvas) ---
 function initParticles() {
   const canvas = document.createElement('canvas');
   canvas.id = 'crypto-network';
@@ -549,13 +558,14 @@ function initParticles() {
   
   function createParticles() {
     particles = [];
+    // Kurangi jumlah partikel di layar HP agar tidak berat
     const particleCount = window.innerWidth < 768 ? 30 : 70;
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * w, 
         y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.5, 
-        vy: (Math.random() - 0.5) * 0.5, 
+        vx: (Math.random() - 0.5) * 0.5, // Kecepatan gerak X
+        vy: (Math.random() - 0.5) * 0.5, // Kecepatan gerak Y
         size: Math.random() * 2 + 1
       });
     }
@@ -563,6 +573,8 @@ function initParticles() {
 
   function draw() {
     ctx.clearRect(0, 0, w, h);
+    
+    // Warna partikel (Orange khas Bitcoin/Crypto)
     const isLight = document.body.classList.contains('light-mode');
     const colorRGB = isLight ? '247, 147, 26' : '247, 147, 26'; 
     
@@ -572,13 +584,16 @@ function initParticles() {
       let p = particles[i];
       p.x += p.vx; p.y += p.vy;
       
+      // Pantulan jika kena pinggir layar
       if (p.x < 0 || p.x > w) p.vx *= -1;
       if (p.y < 0 || p.y > h) p.vy *= -1;
       
+      // Gambar titik (Node)
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fill();
       
+      // Gambar garis penghubung jika jaraknya berdekatan
       for (let j = i + 1; j < particles.length; j++) {
         let p2 = particles[j];
         let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
@@ -602,7 +617,10 @@ function initParticles() {
   draw();
 }
 
+// Jalankan animasi partikel
 initParticles();
+  
+// Generate on Load
 generate();
 </script>
 
